@@ -1,0 +1,12 @@
+# BRFSS KA1 Milestone 1: Initial Exploration
+# Python used: 3.14.7
+# The following versions were recorded in the notebook's executed output.
+numpy==2.5.3
+pandas==3.0.5
+scikit-learn==1.9.0
+
+# Required for plots and running the notebook.
+matplotlib
+jupyterlab
+
+

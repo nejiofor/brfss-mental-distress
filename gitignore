@@ -1,0 +1,29 @@
+# Raw BRFSS data and respondent-level exports
+*.XPT
+*.xpt
+*.csv
+*.parquet
+*.feather
+*.pkl
+*.pickle
+*.joblib
+*.sav
+*.sas7bdat
+
+# Local data and generated outputs
+data/
+outputs/
+ka1_aggregate_outputs/
+
+# Python environments and temporary files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# macOS metadata
+.DS_Store
+
+# Keep project notebooks, documentation, and requirements tracked.
+# GitHub browser uploads still require checking selected files manually.
