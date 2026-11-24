@@ -1,96 +1,122 @@
-# BRFSS 2024 Frequent Mental Distress
+# BRFSS 2024 Frequent Mental Distress — KA1 Milestone 2
+Author: Ngozichukwuka Ejiofor
 
-## KA1 Milestone 1: Research Design and Feasibility
+Research question: Can eleven respondent characteristics classify concurrent frequent mental distress, and does a constrained decision tree improve on L2 logistic regression when entire states are held out?
 
-**Author:** Ngozichukwuka Ejiofor  
-**Course:** ANLY 530 — Principles and Applications of Machine Learning
-
-## Project overview
-
-This project examines whether demographic, socioeconomic, behavioral, and physical-health information can identify adults reporting frequent mental distress in the 2024 Behavioral Risk Factor Surveillance System (BRFSS).
-
-The research protocol proposes comparing regularized logistic regression with a decision tree that has limits on its complexity. Later analyses will examine performance in states excluded from training, the reliability of predicted probabilities, and differences across recorded sex and age groups.
-
-## What is included at Milestone 1?
-
-The current notebook, `BRFSS_KA1_Initial_Exploration.ipynb`, stops at exploration and feasibility. It:
-
-- Loads the local BRFSS file and records its dimensions, software versions, and digital fingerprint.
-- Checks that the required measurements are available.
-- Defines frequent mental distress and handles invalid or missing responses.
-- Reports respondent exclusions and predictor missingness.
-- Summarizes the outcome using both unweighted counts and survey-weighted prevalence.
-- Produces descriptive tables and plots.
-- Checks for outcome-related information that must be excluded from predictors.
-- Checks whether five proposed state-held-out validation folds are feasible.
-- Saves aggregate exploratory summaries.
-
-**The initial notebook does not fit, tune, or compare predictive models.** It does not produce model-performance scores, calibration results, optimized thresholds, or subgroup model comparisons. Those analyses are planned for later milestones. Any earlier modeling results discussed in the protocol are separate preliminary work, not outputs of this notebook.
-
-## Dataset and outcome
-
-**Source:** Centers for Disease Control and Prevention, [2024 BRFSS survey data and documentation](https://www.cdc.gov/brfss/annual_data/annual_2024.html).
-
-BRFSS is a telephone survey of noninstitutionalized adults. Each record represents one respondent. These are cross-sectional observations, not repeated measurements of the same person over time.
-
-The outcome is frequent mental distress:
-
-- **Frequent distress:** 14–30 mentally unhealthy days in the previous month.
-- **Comparison group:** 0–13 mentally unhealthy days.
-
-The code distinguishes responses indicating zero days from unknown, refused, invalid, or missing responses. Missing outcomes are excluded rather than imputed. Counts and weighted prevalence are calculated from the actual local file when the notebook runs.
-
-The eleven predictors are age, body mass index, physically unhealthy days, recorded sex, education, household income, employment status, routine-checkup history, leisure-time physical activity, smoking status, and walking difficulty. Health-plan coverage and sleep duration are excluded because they were unavailable in the working file. Survey weights and sampling identifiers are not predictors.
-
-## Files for the initial submission
-
-| File | Purpose |
-|---|---|
-| `README.md` | Project overview and run instructions |
-| `BRFSS_KA1_Initial_Exploration.ipynb` | Self-contained exploratory notebook; it may be stored in a `notebooks/` folder |
-| `requirements.txt` | Software dependencies |
-| `CONTRIBUTIONS.md` | Individual responsibilities and AI assistance |
-| Research protocol in DOCX or PDF format | Research question, literature synthesis, measurement, proposed methods, schedule, and limitations |
-| `.gitignore` | Helps exclude local data and temporary outputs |
+Project repository: https://github.com/nejiofor/brfss-mental-distress
 
 
-## How to run
+## Status
+The real-data analysis is complete in the reviewed notebook. It includes cohort preparation, the nested state-held-out baseline/logistic/tree comparison, calibration, geographic and demographic subgroup results, model complexity, training-state refit stability, and both prespecified sensitivity analyses. The report has been updated with these findings.
 
-1. Download and extract `LLCP2024.XPT` from the CDC source above. Keep the matching codebook for checking response definitions.
-2. Use Python 3.12 with the accompanying requirements file. From the repository folder on macOS or Linux, run:
+Survey-design standard errors and confidence intervals were withheld because the audit found 110 single-sampling-unit strata and no handling method had been specified. Full uncertainty from model fitting, tuning, and threshold selection has not been estimated. Results are descriptive; no statistical-significance or clinical-readiness claim is made.
+
+### Key real-data results
+- Input: 457,670 respondents and 301 variables; eligible cohort: 449,514, including 62,315 positive outcomes.
+- Unweighted outcome prevalence: 13.86%; survey-weighted prevalence: 15.52%.
+
+| Model | Mean outer-fold weighted AP | Pooled out-of-fold weighted AP | Pooled ROC-AUC | Pooled Brier score |
+| --- | ---: | ---: | ---: | ---: |
+| Constant training-prevalence baseline | 0.1558 | 0.1515 | 0.4896 | 0.1311 |
+| Logistic regression | 0.4059 | 0.4041 | 0.7654 | 0.1124 |
+| Decision tree | 0.3782 | 0.3833 | 0.7519 | 0.1138 |
+
+Mean-fold and pooled metrics summarize predictions differently and should be labeled separately. The baseline predicts a constant probability within each fold, but those probabilities vary across folds; its pooled AP therefore need not equal pooled prevalence, and its pooled ROC-AUC need not equal 0.50.
+
+Logistic regression had higher AP in 49 of 53 reporting areas and more stable classifications under training-state subsampling. At training-selected thresholds, pooled sensitivity was 69.96% for logistic regression and 70.03% for the tree; pooled precision was 29.53% and 28.36%, respectively. Performance varied across sex and age groups.
+
+| Sensitivity analysis | Logistic regression pooled AP | Decision tree pooled AP |
+| --- | ---: | ---: |
+| Without physically unhealthy days | 0.3355 | 0.3071 |
+| Without model-fitting weights | 0.4035 | 0.3856 |
+
+Both sensitivity analyses were completed with survey-weighted evaluation. Removing physical-health days reduced performance materially; removing fitting weights had much smaller effects. Logistic regression remained the preferred model under both checks. These results do not establish causation or robustness to every analysis choice.
+
+## Run on your Mac
+1. Open the project folder. If using the ZIP package, extract it first and keep its folder structure. Rename the reviewed notebook to `BRFSS_KA1_Milestone2.ipynb` if your download has a numbered suffix.
+2. Keep `LLCP2024.XPT` local. The notebook checks your previously supplied project/iCloud path, the repository root, and a `data` subfolder. An explicit `BRFSS_PATH` environment variable overrides those choices.
+3. Use a Python 3.12.4 environment with the dependencies in `requirements.txt`. Do not replace an existing environment that you need for earlier work.
+4. From the extracted folder, run:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-jupyter lab
+jupyter lab BRFSS_KA1_Milestone2.ipynb
 ```
 
-3. Open `BRFSS_KA1_Initial_Exploration.ipynb`, either from the repository root or the `notebooks/` folder.
-4. Put the XPT file beside the notebook, put it in the repository's `data/` folder, or edit `DATA_PATH` in the settings cell to point to its actual location. Alternatively, set the `BRFSS_PATH` environment variable before starting Jupyter.
-5. Restart the kernel and run all cells in order.
-6. Review the actual results, add any needed interpretation, and save the executed notebook before submitting it.
+Choose **Restart Kernel and Run All Cells**. Keep `DIAGNOSTIC_N=None` for full-cohort results. The reviewed notebook has `RUN_STABILITY=True` and `RUN_SENSITIVITIES=True`. A full run includes the primary comparison, refit stability checks, and both sensitivity analyses. The sensitivity analyses repeat nested tuning and increase runtime. After the analysis finishes, run the final reproducibility-record cell and save the notebook with its outputs.
+
+Optional environment-variable path (Terminal syntax):
+
+```bash
+export BRFSS_PATH='/Users/honeydrops/Library/Mobile Documents/com~apple~CloudDocs/Documents/Harrisburg University/Classes/Fall 2026/ANLY 530/Project/brfss-mental-distress-ka1/LLCP2024.XPT'
+```
+
+The notebook also runs without `src/` because its analysis functions are embedded. If the accompanying script and test files are present, the command-line version can be run as follows. Their presence in the published repository has not been checked here:
+
+```bash
+python tests/test_milestone2.py
+python src/milestone2.py --data '/your/local/LLCP2024.XPT' --sensitivities
+```
+
+The tests use synthetic records only. Full-data model fitting can take substantial time; progress is printed by fold. A diagnostic subsample checks execution but does not support full-survey population inference.
+
+## Data and measurement
+Source: CDC public-use BRFSS 2024, with matching codebook and survey guidance:
+https://www.cdc.gov/brfss/annual_data/annual_2024.html
+
+Frequent mental distress is 14–30 mentally unhealthy days versus 0–13. The zero-days response becomes zero; unknown, refused, invalid, and missing outcomes are excluded. Eleven predictors: age, BMI, physically unhealthy days, recorded sex, education, income, employment, routine-checkup history, leisure-time physical activity, smoking status, and walking difficulty. Routine-checkup “never” is a valid category. BMI is converted to ordinary units.
+
+No mental-health outcome-derived fields, geographic fields, weights, strata, or sampling-unit identifiers enter the predictors. Health-plan coverage and sleep duration are not included in this eleven-predictor comparison.
+
+## Evaluation
+- Five identical outer state-held-out folds; three state-grouped inner folds; seed 42.
+- Training-only median/mode imputation, numeric scaling, and categorical indicator encoding. No outcome imputation.
+- Constant weighted training-prevalence baseline, logistic C values 0.1/1/10, tree depth 3/6 and minimum leaf size 50/200.
+- Unweighted preprocessing; training survey weights normalized to mean one; survey-weighted evaluation.
+- Inner mean weighted AP selects settings. The largest inner-OOF threshold reaching at least 70% sensitivity is frozen for outer evaluation. This is an educational operating point.
+- AP with prevalence, ROC-AUC, Brier score, calibration, default and training-selected threshold performance, paired state results, age/sex subgroups, model complexity, and training–held-out gaps.
+- Descriptive age/sex standardization across states. Not causal adjustment and not proof that composition explains differences.
+- Five training-state subsampling refits with settings and evaluation population held fixed. These diagnose rule/prediction sensitivity, not survey uncertainty.
+- Completed fully nested comparisons excluding physical-health days and omitting fitting weights; evaluation remains weighted. These can be skipped for a shorter future run, but execution status must then be reported accurately.
+
+## Uncertainty: read this distinction
+Survey-weighted performance is not automatically design-based population inference. The workflow audits state, sampling stratum, and sampling unit. A with-replacement Taylor ratio approximation aggregates within sampling units and calculates within-stratum variation, retaining zero-domain contributions from outcome-ineligible records.
+
+Prevalence is an eligible-domain estimate. For Brier score, sensitivity, and specificity, the code treats out-of-fold predictions as fixed. Its intervals are **conditional descriptive approximations**, excluding training, tuning, and threshold-selection uncertainty. They do not justify a full learning-procedure confidence claim. AP/ROC-AUC/calibration intervals and complete survey-resampling/retraining uncertainty remain work for the final paper. In this run, the audit identified 2,393 strata and 457,670 sampling units, including 110 single-unit strata. The code returned point estimates but withheld standard errors and confidence intervals. Single-unit strata or missing eligible design identifiers trigger this safeguard; a documented handling approach is still needed. Diagnostic subsamples skip these intervals. Fold SDs and state-refit diagnostics are not design-correct confidence intervals.
+
+## Aggregate outputs
+The local `milestone2_outputs/` directory includes cohort/missingness audits; selected settings; inner complexity results; training–held-out gaps; fold and pooled metrics; paired state comparisons and population profiles; standardized state metrics; subgroup/calibration summaries; stability diagnostics; sampling-design audit; conditional uncertainty; two PNG figures; and a manifest with checksum, software versions, scope, and switches. Completed sensitivity outputs are written to `without_physical_health/` and `unweighted_fitting/` beneath this directory.
+
+Weighted confusion totals are sums of survey weights, not respondent counts. Metrics describe the observed-outcome domain. Weights do not correct all nonresponse or measurement error.
+
+## Files and submission
+The following describes the intended project package. Keep only file listings that match the files actually uploaded to the repository.
+- `BRFSS_KA1_Milestone2.ipynb`: self-contained analysis notebook.
+- `src/milestone2.py`: reusable implementation and command-line execution.
+- `tests/test_milestone2.py`: synthetic recoding, leakage, split, threshold, integration, and variance checks.
+- `requirements.txt`: tested core dependencies plus Jupyter support.
+- `.gitignore`: excludes raw data, respondent extracts, environments, and local outputs.
+- `CONTRIBUTIONS.md`: individual responsibilities and AI assistance.
+- `KA1_Milestone2_Report_Updated.docx`: report containing completed real-data findings, tables, interpretation, conclusion, and limitations.
 
 
-## Outputs and reproducibility
+## Limitations
+- **Concurrent classification, not future prediction.** The predictors and outcome were collected in the same cross-sectional survey. The models classify reported frequent mental distress and do not establish diagnosis, causation, or future illness risk.
+- **Self-reported measures.** Recall, interpretation of questions, and reporting differences may affect both predictors and the outcome. Frequent mental distress is not equivalent to a clinical mental-health diagnosis.
+- **Outcome nonresponse.** Respondents with missing or invalid outcomes were excluded. Findings apply to the observed-outcome domain; survey weights do not automatically remove bias from outcome nonresponse.
+- **Missing predictors and simple imputation.** Among eligible respondents, income missingness was 18.72%, body mass index missingness was 9.24%, and smoking-status missingness was 6.91%. Training-only median and mode imputation prevents test-data leakage but does not resolve possible bias from informative missingness or fully represent imputation uncertainty.
+- **Dependence on a concurrent physical-health measure.** Physically unhealthy days shares the outcome’s 30-day recall period. Excluding it reduced pooled AP from 0.4041 to 0.3355 for logistic regression and from 0.3833 to 0.3071 for the tree. Logistic regression remained preferred, but absolute performance depended partly on that predictor.
+- **Limited geographic and temporal scope.** Holding out states and territories tests transfer across the 53 reporting areas in this file. It does not establish performance in future years, other populations, or clinical settings. Differences in prevalence, population composition, and survey measurement can affect geographic comparisons.
+- **Unequal subgroup performance.** Overall sensitivity near 70% did not imply similar sensitivity or specificity across sex and age groups. AP and precision depend on prevalence, and AP/prevalence ratios do not fully correct for population differences. These comparisons alone cannot establish fairness.
+- **Exploratory population standardization.** Age/sex reweighting is descriptive, requires adequate cell counts, and does not account for all measured or unmeasured differences between reporting areas. It is not causal adjustment.
+- **No completed survey-design confidence intervals.** The audit found 110 single-sampling-unit strata. Standard errors and confidence intervals were withheld because a handling method had not been specified. This is an implementation limitation, not evidence that BRFSS uncertainty cannot be estimated. Observed model differences are not claimed to be statistically significant.
+- **Learning-procedure uncertainty remains unestimated.** Even the proposed conditional intervals would treat out-of-fold predictions as fixed and omit fitting, tuning, and threshold-selection uncertainty. Fold standard deviations and the 80% training-state refits are descriptive checks, not replacements for appropriate survey-resampling uncertainty.
+- **Restricted model search and stability checks.** Conclusions concern the tested regularized logistic regression and constrained trees, not all possible algorithms or settings. Refit checks held hyperparameters and thresholds fixed and did not repeat model selection. Small positive-case counts in some areas can also make local results unstable.
+- **Threshold trade-offs and practical use.** The 70% training-sensitivity target was chosen for research comparison, not validated as a screening standard. At training-selected thresholds, pooled logistic-regression precision was 29.53%, so many flagged respondents did not report the outcome. No clinical benefit, deployment readiness, or acceptable balance of false positives and missed cases has been established.
 
-The notebook saves aggregate CSV tables and a JSON manifest in `ka1_aggregate_outputs/`, relative to the notebook's working directory. These include cohort flow, missingness, target distribution, numeric and categorical summaries, and proposed validation-fold checks.
-
-The manifest records the input fingerprint, software versions, seed 42, selected predictors, and analysis scope. The proposed folds keep entire states separate. Checking the folds does not constitute fitting or validating a model.
-
-Unweighted percentages describe respondents in the analytic sample; survey-weighted percentages estimate prevalence for the population represented by the included data. They should not be used interchangeably.
-
-## Planned later work
-
-Subsequent milestones will compare a constant baseline, logistic regression, and a constrained decision tree. The plan includes training-fold preprocessing, nested state-grouped selection, survey-weighted average precision and other metrics, calibration, training-selected thresholds, subgroup evaluation, and sensitivity checks. Survey-design uncertainty requires separate attention to the documented sampling structure.
+## Interpretation
+This is cross-sectional classification of self-reported distress, not diagnosis, future illness prediction, causal inference, or screening deployment. A tree's higher recall in selected states is insufficient for selection without precision, calibration, paired performance, and stability evidence.
 
 
-## Interpretation limits
-
-Frequent mental distress is a self-reported surveillance measure, not a clinical diagnosis. This cross-sectional study does not predict future illness, identify causes of distress, or establish that a model is suitable for individual screening. Nonresponse, missing data, survey coverage, measurement error, and geographic differences limit interpretation.
-
-## Contribution and AI assistance
-
-This is an individual project. Ngozichukwuka Ejiofor is responsible for reviewing the literature and study design, checking the data coding, executing the analysis, interpreting results, maintaining the repository, and preparing the submission.
-
-ChatGPT assisted with GitHub instructions. 

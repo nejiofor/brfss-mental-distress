@@ -1,3 +1,7 @@
-# Individual contribution statement and AI disclosure
-Ngozichukwuka Ejiofor: conceptualization, study design, literature appraisal, data curation, analysis execution, validation, interpretation, repository maintenance, manuscript, and presentation.
-ChatGPT assisted with steps to use github. 
+# Contributions and AI assistance
+
+This is an individual project by Ngozichukwuka Ejiofor, who is responsible for study design, source verification, data access and auditing, real-data execution, interpretation, repository maintenance, manuscript preparation, and presentation.
+
+ChatGPT assisted assisted with steps to use github; some complex codes and understanding some outputs. 
+
+Only public deidentified survey data are intended for this investigation. Raw respondent records and individual predictions remain local and are not part of the repository deliverables.
